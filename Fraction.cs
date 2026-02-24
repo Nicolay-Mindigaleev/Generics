@@ -1,20 +1,20 @@
-class Fraction 
+class Fraction <T>
 {
-    private int numerator;
-    public int Numerator
+    private T numerator;
+    public T Numerator
     {
         get {return numerator;}
         private set
         {numerator = value;}
     }
-    private int denominator;
-    public int Denominator
+    private T denominator;
+    public T Denominator
     {
         get {return denominator;}
         private set
         {denominator = value;}
     }
-    private int IntegerPart;
+    private T IntegerPart;
     private bool autoReduce;
     public bool AutoReduce
     {
@@ -23,10 +23,14 @@ class Fraction
     }
     private void SignCheck()
     {
-        if (denominator < 0)
+        if (typeof(T) == typeof(Polynomial)) return;
+        dynamic numer = numerator, denom = denominator;
+        if (denom < 0)
         {
-            numerator *= -1;
-            denominator *= -1;
+            numer *= -1;
+            denom *= -1;
+            numerator = numer;
+            denominator = denom;
         }
 
     }
@@ -44,19 +48,48 @@ class Fraction
         numerator /= buffer;
         denominator /= buffer;
     }
-    public Fraction(int NumeratorValue, int DenominatorValue)
+    public Fraction(T NumeratorValue, T DenominatorValue)
     {
-        if (DenominatorValue == 0)
-            throw new DivideByZeroException("Denominator can't be equals zero");
+        numerator = default(T);
+        denominator = default(T);
+        IntegerPart = default(T);
+        if (typeof(T) == typeof(int))
+        {
+            if ((int)(object)DenominatorValue == 0)
+                throw new DivideByZeroException("Denominator can't be equals zero");
+            IntegerPart = (T)(Object)0;
+        }
+
+        if (typeof(T) == typeof(Polynomial))
+        {
+            dynamic polyn = DenominatorValue;
+            if (polyn.Power == 0 && polyn[0] == 0)
+                throw new DivideByZeroException("Denominator can't be equals zero");
+            IntegerPart = (T)(Object)new Polynomial();
+        }
         numerator = NumeratorValue;
         denominator = DenominatorValue;
-        IntegerPart = 0;
         SignCheck();
         if (AutoReduce)
             Reduce();
     }
-    public Fraction() : this(0, 1)
-    {}
+    public Fraction()
+    {
+        if (typeof(T) == typeof(int))
+        {
+            numerator = (T)(Object)0;
+            denominator = (T)(Object)1;
+            IntegerPart = (T)(Object)0;
+        }
+
+        if (typeof(T) == typeof(Polynomial))
+        {
+            numerator = (T)(Object)new Polynomial();
+            denominator = (T)(Object)new Polynomial([1]);
+            IntegerPart = (T)(Object)new Polynomial();
+        }
+   
+    }
     public Fraction(int IntegerValue) : this(IntegerValue, 1)
     {}
     public Fraction(Fraction otherFraction) : this(otherFraction.Numerator, otherFraction.Denominator)
