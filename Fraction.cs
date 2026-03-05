@@ -36,23 +36,51 @@ class Fraction <T>
     }
     public void Reduce()
     {
-        int PrevDiv = Math.Max(Math.Abs(numerator), Math.Abs(denominator));
-        int remainder = Math.Min(Math.Abs(numerator), Math.Abs(denominator));
-        int buffer = 1;
-        while (remainder != 0)
+        if (typeof(T) == typeof(int))
         {
-            buffer = remainder;
-            remainder = PrevDiv % remainder;
-            PrevDiv = buffer;
+            dynamic Dnumerator = numerator;
+            dynamic Ddenominator = denominator;
+            int PrevDiv = Math.Max(Math.Abs(Dnumerator), Math.Abs(Ddenominator));
+            int remainder = Math.Min(Math.Abs(Dnumerator), Math.Abs(Ddenominator));
+            int buffer = 1;
+            while (remainder != 0)
+            {
+                buffer = remainder;
+                remainder = PrevDiv % remainder;
+                PrevDiv = buffer;
+            }
+            numerator /= (dynamic)buffer;
+            denominator /= (dynamic)buffer;            
         }
-        numerator /= buffer;
-        denominator /= buffer;
+        if (typeof(T) == typeof(Polynomial))
+        {
+            dynamic Dnumerator = numerator;
+            dynamic Ddenominator = denominator;
+            Polynomial PrevDiv;
+            Polynomial remainder;
+            if (Dnumerator.Power > Ddenominator.Power)
+            {
+                PrevDiv = Dnumerator;
+                remainder = Ddenominator;
+            }
+            else
+            {
+                PrevDiv = Ddenominator;
+                remainder = Dnumerator;
+            }
+            Polynomial buffer = new Polynomial([1]);
+            while (remainder.Power != 1 || remainder[0] != 0)
+            {
+                buffer = remainder;
+                remainder = PrevDiv % remainder;
+                PrevDiv = buffer;
+            }
+            numerator /= (dynamic)buffer;
+            denominator /= (dynamic)buffer;            
+        }
     }
     public Fraction(T NumeratorValue, T DenominatorValue)
     {
-        numerator = default(T);
-        denominator = default(T);
-        IntegerPart = default(T);
         if (typeof(T) == typeof(int))
         {
             if ((int)(object)DenominatorValue == 0)
@@ -90,66 +118,118 @@ class Fraction <T>
         }
    
     }
-    public Fraction(int IntegerValue) : this(IntegerValue, 1)
-    {}
-    public Fraction(Fraction otherFraction) : this(otherFraction.Numerator, otherFraction.Denominator)
+    public Fraction(T Value)
+    {
+        if (typeof(T) == typeof(int))
+        {
+            numerator = (T)(Object)Value;
+            denominator = (T)(Object)1;
+            IntegerPart = (T)(Object)0;
+        }
+
+        if (typeof(T) == typeof(Polynomial))
+        {
+            dynamic PolyValue = Value;
+            numerator = (T)(Object)new Polynomial(PolyValue);
+            denominator = (T)(Object)new Polynomial([1]);
+            IntegerPart = (T)(Object)new Polynomial();
+        }        
+    }
+    public Fraction(Fraction<T> otherFraction) : this(otherFraction.Numerator, otherFraction.Denominator)
     {}
     public override string ToString()
     {
-        if (IntegerPart == 0)
-            return ($"{numerator}/{denominator}");
-        else if (numerator > 0)
+        if (typeof(T) == typeof(int))
+        {
+            dynamic IntPart = IntegerPart;
+            dynamic Dnumerator = numerator;
+            if (IntPart == 0)
+                return ($"{numerator}/{denominator}");
+            else if (Dnumerator > 0)
+                return ($"{IntegerPart} + {numerator}/{denominator}");
+            return ($"{IntegerPart} - {Math.Abs(Dnumerator)}/{denominator}");
+        }
+        if (typeof(T) == typeof(Polynomial))
+        {
+            dynamic IntPart = IntegerPart;
+            dynamic Dnumerator = numerator;
+            if (IntPart.Power == 1 && IntPart[0] == 0)
+                return ($"{numerator}/{denominator}");
             return ($"{IntegerPart} + {numerator}/{denominator}");
-        return ($"{IntegerPart} - {Math.Abs(numerator)}/{denominator}");
+        }
+        throw new Exception("How you do it?");
     }
     public void Decomposition()
     {
-        IntegerPart = numerator / denominator;
-        if (numerator > 0)
-            numerator %= denominator;
-        else
+        IntegerPart = (dynamic)numerator / denominator;
+        if(typeof(T) == typeof(int))
         {
-            numerator = (Math.Abs(numerator) % denominator) * -1;
+            dynamic Dnumerator = numerator;
+            if (Dnumerator > 0)
+                Dnumerator %= denominator;
+            else
+            {
+                numerator = (Math.Abs(Dnumerator) % denominator) * -1;
+            }            
+        }
+        if(typeof(T) == typeof(Polynomial))
+        {
+                numerator %= (dynamic)denominator;
         }
     }
-    public static Fraction operator +(Fraction val1, Fraction val2)
-    {
-        int newDenom = val1.Denominator * val2.Denominator;
-        int numer1 = val1.Numerator * val2.Denominator;
-        int numer2 = val2.Numerator * val1.Denominator;
-        Fraction result = new Fraction(numer1 + numer2, newDenom);
-        return result;
+    public static Fraction<T> operator +(Fraction<T> val1, Fraction<T> val2)
+    { 
+        T newDenom = (dynamic)val1.Denominator * (dynamic)val2.Denominator;
+        T numer1 = (dynamic)val1.Numerator * (dynamic)val2.Denominator;
+        T numer2 = (dynamic)val2.Numerator * (dynamic)val1.Denominator;
+        dynamic sum = (dynamic)numer1 + (dynamic)numer2;
+        Fraction<T> result = new Fraction<T>(sum, newDenom);
+        return result;            
     } 
-    public static Fraction operator -(Fraction val1, Fraction val2)
+    public static Fraction<T> operator -(Fraction<T> val1, Fraction<T> val2)
     {
-        Fraction val2Copy = new Fraction(val2);
-        val2Copy.Numerator *= -1;
-        return val1 + val2Copy;
+        T newDenom = (dynamic)val1.Denominator * (dynamic)val2.Denominator;
+        T numer1 = (dynamic)val1.Numerator * (dynamic)val2.Denominator;
+        T numer2 = (dynamic)val2.Numerator * (dynamic)val1.Denominator;
+        dynamic subt = (dynamic)numer1 - (dynamic)numer2;
+        Fraction<T> result = new Fraction<T>(subt, newDenom);
+        return result;            
     }
-    public static Fraction operator *(Fraction val1, Fraction val2)
+    public static Fraction<T> operator *(Fraction<T> val1, Fraction<T> val2)
     {
-        Fraction result = new Fraction(val1.Numerator * val2.Numerator, 
-                                      val1.Denominator * val2.Denominator);
+        T newNum = (dynamic)val1.Numerator * (dynamic)val2.Numerator;
+        T newDenum = (dynamic)val1.Denominator * (dynamic)val2.Denominator;
+        Fraction<T> result = new Fraction<T>(newNum, newDenum);
         return result;
     }
-    public static Fraction operator /(Fraction val1, Fraction val2)
+    public static Fraction<T> operator /(Fraction<T> val1, Fraction<T> val2)
     {
-        if (val2.Numerator == 0)
-            throw new DivideByZeroException("Divide by zero error");
-        Fraction result = new Fraction(val1.Numerator * val2.Denominator, 
-                                      val1.Denominator * val2.Numerator);
+        dynamic Dval2 = val2;
+        if (typeof(T) == typeof(int))
+            if (Dval2.Numerator == 0)
+                throw new DivideByZeroException("Divide by zero error");
+        if (typeof(T) == typeof(Polynomial))
+            if (Dval2.Numerator.Power == 1 && Dval2.Numerator[0] == 0)
+                throw new DivideByZeroException("Divide by zero error");
+        T newNum = (dynamic)val1.Numerator * (dynamic)val2.Denominator;
+        T newDenum = (dynamic)val1.Denominator * (dynamic)val2.Numerator;
+        Fraction<T> result = new Fraction<T>(newNum, newDenum);
         return result;
     }
-    public static explicit operator int(Fraction fraction)
+        public static explicit operator int(Fraction<T> fraction)
+        {
+            if(typeof(T) == typeof(int))
+                return (dynamic)fraction.Numerator / fraction.Denominator;
+            throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
+        }
+        public static explicit operator double(Fraction<T> fraction)
+        {
+            if(typeof(T) == typeof(int))
+                return (double)(dynamic)fraction.Numerator / (double)(dynamic)fraction.Denominator;
+            throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
+        }
+    public static implicit operator Fraction<T>(T value)
     {
-        return fraction.Numerator / fraction.Denominator;
-    }
-    public static explicit operator double(Fraction fraction)
-    {
-        return (double)fraction.Numerator / (double)fraction.Denominator;
-    }
-    public static implicit operator Fraction(int value)
-    {
-        return new Fraction(value);
+        return new Fraction<T>(value);
     }        
 }

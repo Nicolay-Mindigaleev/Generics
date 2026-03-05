@@ -155,7 +155,7 @@ class Polynomial
         double[] result = new double[pol1.Power + pol2.Power - 1];
         for (int i = 0; i < pol2.Power; i++)
             for (int j = 0; j < pol1.Power; j++)
-                result[i + j] += pol1[i] * pol2[j];               
+                result[i + j] += pol1[j] * pol2[i];               
         Polynomial PolMul = new Polynomial(result);
         return PolMul;
     }
