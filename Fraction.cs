@@ -1,6 +1,17 @@
+/// <summary>
+/// Универсальный класс дроби с числителем и знаменателем типа T.
+/// Поддерживает типы int (обычные дроби) и Polynomial&lt;double&gt; (полиномиальные дроби).
+/// </summary>
+/// <typeparam name="T">Тип числителя и знаменателя: int или Polynomial&lt;double&gt;</typeparam>
 class Fraction <T>
 {
+    /// <summary>
+    /// Числитель дроби. Доступен только для чтения извне.
+    /// </summary>
     private T numerator;
+    /// <summary>
+    /// Знаменатель дроби. Доступен только для чтения извне.
+    /// </summary>
     public T Numerator
     {
         get {return numerator;}
@@ -14,6 +25,9 @@ class Fraction <T>
         private set
         {denominator = value;}
     }
+    /// <summary>
+    /// Целая часть дроби. Используется после вызова Decomposition().
+    /// </summary>
     private T IntegerPart;
     private bool autoReduce;
     public bool AutoReduce

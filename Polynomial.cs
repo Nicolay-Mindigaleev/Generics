@@ -4,17 +4,54 @@ using System.Linq.Expressions;
 
 class Polynomial <T>
 {
+    private delegate void ChangedCoef(int i, T prevValue, T CurrValue);
+    private delegate void ChangedPow(int prevVal, int CurrVal);
     private T[] array;
     private int power;
+    private event ChangedPow ChangedPower;
+    public int Power
+    {
+        get {return power;}
+        set
+        {
+            ChangedPower(power, value);
+            T[] arrayCopy = new T[value];
+            if (value > power)
+            {
+                for (int i = 0; i < power; i++)
+                {
+                    arrayCopy[i] = array[i];
+                }
+                for(int i = power; i < value; i++)
+                {
+                    if (typeof(T) == typeof(int))
+                        arrayCopy[i] = (dynamic)0;
+                    if (typeof(T) == typeof(Fraction<int>))
+                    {
+                        arrayCopy[i] = (dynamic)new Fraction<int>();
+                    }
+                }
+            }
+            else
+            {
+                for (int i = 0; i < value; i++)
+                {
+                    arrayCopy[i] = array[i];
+                }                
+            }
+            array = arrayCopy;
+            power = value;
+        }
+    }
+    private void ChangedPowerInfo(int prevPow, int currPow)
+    {
+        Console.WriteLine($"WARNING! Power have been changed from {prevPow} to {currPow}. Discarding was not activated. You need to activate it yourself");
+    }
     private bool autoDiscarding = true;
     public bool AutoDiscarding
     {
         get {return autoDiscarding;}
         set {autoDiscarding = value;}
-    }
-    public int Power
-    {
-        get {return power;}
     }
     public void Discard()
     {
@@ -72,6 +109,8 @@ class Polynomial <T>
     }
     public Polynomial(int InputPower)
     {
+        ChangedPower += ChangedPowerInfo;
+        ChangedCoefEv += CoefChangeInfo;
         if (typeof(T) == typeof(double))
         {
             power = InputPower;
@@ -87,6 +126,8 @@ class Polynomial <T>
     public Polynomial(): this(1) {}
     public Polynomial(T[] values)
     {
+        ChangedPower += ChangedPowerInfo;
+        ChangedCoefEv += CoefChangeInfo;
         if (values.Length == 0)
         {
             if (typeof(T) == typeof(double))
@@ -109,6 +150,8 @@ class Polynomial <T>
     }
     public Polynomial(Polynomial<T> otherPol)
     {
+        ChangedPower += ChangedPowerInfo;
+        ChangedCoefEv += CoefChangeInfo;
         array = new T[otherPol.Power];
         power = otherPol.Power;
         for (int i = 0; i < otherPol.Power; i++)
@@ -194,15 +237,21 @@ class Polynomial <T>
         }
         return result;
     }
+    private event ChangedCoef ChangedCoefEv;
     public T this [int i]
     {
         get {return array[i];}
         set
         {
+            ChangedCoefEv(i, array[i], value);
             array[i] = value;
             if (autoDiscarding)
                 Discard();
         }
+    }
+    private void CoefChangeInfo(int i, T PrevValue, T CurrValue)
+    {
+        Console.WriteLine($"The coefficient with degree {i} was changed from {PrevValue} to {CurrValue}");
     }
     public static Polynomial<T> operator +(Polynomial<T> pol1, Polynomial<T> pol2)
     {

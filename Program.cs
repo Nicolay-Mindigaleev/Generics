@@ -88,8 +88,8 @@ class Program
         Console.WriteLine($"{fr3} * {fr4} = {fr3 * fr4}");
         Console.WriteLine($"{fr3} / {fr4} = {fr3 / fr4}");
         }*/
-    {
-    /*Console.WriteLine("POLYNOMIAL<FRACTION> TEST");
+    /*{
+    Console.WriteLine("POLYNOMIAL<FRACTION> TEST");
     Console.WriteLine("CONSTRUCTORS TEST");
         
     // Конструктор от массива дробей
@@ -167,7 +167,7 @@ class Program
 
     // (1/2 x + 1/3) * (2/3 x + 1/4) = ?
     // Посчитаем руками, а потом проверим деление
-    {
+    /*{
     Fraction<int>[] coeffs1 = new Fraction<int>[]
     {
         new Fraction<int>(1, 3),  // свободный член
@@ -194,5 +194,10 @@ class Program
     Console.WriteLine($"остаток = {remainder}");
     }
 }
+    }*/
+    Polynomial<double> ChangePowPol = new Polynomial<double>([1, 2, 8, 51]);
+    ChangePowPol.Power = 9;
+    ChangePowPol[1] = 2.35;
+    ChangePowPol[3] = 15.212;
     }
 }
