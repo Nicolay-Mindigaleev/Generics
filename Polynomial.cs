@@ -1,12 +1,22 @@
 using System.ComponentModel.DataAnnotations;
 using System.IO.Pipelines;
 using System.Linq.Expressions;
-
+/// <summary>
+/// universal polynomial class.
+/// supports double and Fraction&lt;int&gt; type.
+/// </summary>
+/// <typeparam name="T">coefficient type: double or Fraction&lt;int&gt;</typeparam>
 class Polynomial <T>
 {
     private delegate void ChangedCoef(int i, T prevValue, T CurrValue);
     private delegate void ChangedPow(int prevVal, int CurrVal);
+    /// <summary>
+    /// Coefficients array. Access by index.
+    /// </summary>
     private T[] array;
+    /// <summary>
+    /// Coefficients array. Read and edit(Not desirable) access.
+    /// </summary>
     private int power;
     private event ChangedPow ChangedPower;
     public int Power
@@ -47,12 +57,18 @@ class Polynomial <T>
     {
         Console.WriteLine($"WARNING! Power have been changed from {prevPow} to {currPow}. Discarding was not activated. You need to activate it yourself");
     }
+    /// <summary>
+    /// Automatic discarding zero senior coefficients flag. Default value: true. Read and edit access.  
+    /// </summary>
     private bool autoDiscarding = true;
     public bool AutoDiscarding
     {
         get {return autoDiscarding;}
         set {autoDiscarding = value;}
     }
+    /// <summary>
+    /// Discarding zero senior coefficients method.  
+    /// </summary>
     public void Discard()
     {
         if (typeof(T) == typeof(double))
@@ -159,6 +175,10 @@ class Polynomial <T>
             array[i] = otherPol.array[i];
         }
     }
+    /// <summary>
+    /// Overriding ToString method. Prints all coefficents startin for seniors coefficents. Zero coefficients are skipped.
+    /// </summary>  
+    /// <returns>A string of all components of a fraction</returns>
     public override string ToString()
     {
         string result = "";
@@ -253,6 +273,13 @@ class Polynomial <T>
     {
         Console.WriteLine($"The coefficient with degree {i} was changed from {PrevValue} to {CurrValue}");
     }
+
+    /// <summary>
+    /// Addition polynomials.
+    /// </summary>
+    /// <param name="pol1">First polynomial</param>
+    /// <param name="pol2">Second polynomial</param>
+    /// <returns>New polynomial - result adding</returns> 
     public static Polynomial<T> operator +(Polynomial<T> pol1, Polynomial<T> pol2)
     {
         T[] result = new T[Math.Max(pol1.Power, pol2.Power)];
@@ -271,6 +298,12 @@ class Polynomial <T>
         Polynomial<T> sumPol = new Polynomial<T>(result);
         return sumPol;
     }
+    /// <summary>
+    /// Subtraction polynomials.
+    /// </summary>
+    /// <param name="pol1">Minuend polynomial</param>
+    /// <param name="pol2">Subtrahend polynomial</param>
+    /// <returns>New polynomial - result subtracting</returns>
     public static Polynomial<T> operator -(Polynomial<T> pol1, Polynomial<T> pol2)
     {
         T[] result = new T[Math.Max(pol1.Power, pol2.Power)];
@@ -289,6 +322,12 @@ class Polynomial <T>
         Polynomial<T> sumPol = new Polynomial<T>(result);
         return sumPol;
     }
+    /// <summary>
+    /// Multiply polynomials.
+    /// </summary>
+    /// <param name="pol1">First polynomial</param>
+    /// <param name="pol2">Second polynomial</param>
+    /// <returns>New polynomial - result multiplying</returns>
     public static Polynomial<T> operator *(Polynomial<T> pol1, Polynomial<T> pol2)
     {
         T[] result = new T[pol1.Power + pol2.Power - 1];
@@ -332,10 +371,24 @@ class Polynomial <T>
         }
         return (new Polynomial<T>((dynamic)result), new Polynomial<T>((dynamic)buffer));  
     }
+    /// <summary>
+    /// Division polynomials.
+    /// </summary>
+    /// <param name="pol1">Dividend polynomial</param>
+    /// <param name="pol2">Divider polynomial</param>
+    /// <returns>New polynomial - result dividing</returns>
+    /// <exception cref="DivideByZeroException">If divider equals zero</exception>
     public static Polynomial<T> operator /(Polynomial<T> pol1, Polynomial<T> pol2)
     {
         return Division(pol1, pol2).quotient;
     }
+    /// <summary>
+    /// Remainder from division polynomials.
+    /// </summary>
+    /// <param name="pol1">Dividend polynomial</param>
+    /// <param name="pol2">Divider polynomial</param>
+    /// <returns>New polynomial - result remainder from divisions</returns>
+    /// <exception cref="DivideByZeroException">If divider equals zero</exception>
     public static Polynomial<T> operator %(Polynomial<T> pol1, Polynomial<T> pol2)
     {
         return Division(pol1, pol2).remainder;

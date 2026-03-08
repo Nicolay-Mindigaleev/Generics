@@ -1,23 +1,23 @@
 /// <summary>
-/// Универсальный класс дроби с числителем и знаменателем типа T.
-/// Поддерживает типы int (обычные дроби) и Polynomial&lt;double&gt; (полиномиальные дроби).
+/// universal fraction class with numerator and denominator T type.
+/// supports int (common fraction) and Polynomial&lt;double&gt; type (Polynomial fraction).
 /// </summary>
-/// <typeparam name="T">Тип числителя и знаменателя: int или Polynomial&lt;double&gt;</typeparam>
+/// <typeparam name="T">numerator and denominator type: int or Polynomial&lt;double&gt;</typeparam>
 class Fraction <T>
 {
     /// <summary>
-    /// Числитель дроби. Доступен только для чтения извне.
+    /// Numerator of the fraction. Read only access
     /// </summary>
     private T numerator;
-    /// <summary>
-    /// Знаменатель дроби. Доступен только для чтения извне.
-    /// </summary>
     public T Numerator
     {
         get {return numerator;}
         private set
         {numerator = value;}
     }
+    /// <summary>
+    /// Denominator of the fraction. Read only access.
+    /// </summary>
     private T denominator;
     public T Denominator
     {
@@ -26,10 +26,14 @@ class Fraction <T>
         {denominator = value;}
     }
     /// <summary>
-    /// Целая часть дроби. Используется после вызова Decomposition().
+    /// The integer part of a fraction. Used after calling Decomposition() method. Private access
     /// </summary>
     private T IntegerPart;
+    /// <summary>
+    /// Automatic fraction reduction flag. Default value: true. Read and edit access
+    /// </summary>
     private bool autoReduce;
+    
     public bool AutoReduce
     {
         get {return autoReduce;}
@@ -46,8 +50,10 @@ class Fraction <T>
             numerator = numer;
             denominator = denom;
         }
-
     }
+    /// <summary>
+    /// fraction reduction method.
+    /// </summary>    
     public void Reduce()
     {
         if (typeof(T) == typeof(int))
@@ -151,6 +157,11 @@ class Fraction <T>
     }
     public Fraction(Fraction<T> otherFraction) : this(otherFraction.Numerator, otherFraction.Denominator)
     {}
+    /// <summary>
+    /// Overriding ToString method. Prints numerator and denominator of the fraction, also prints integer part of the fraction, if it not equal zero
+    /// </summary>  
+    /// <returns>A string of all components of a fraction</returns>
+    /// <exception cref="Exception">If somehow it doesn't return a value</exception>
     public override string ToString()
     {
         if (typeof(T) == typeof(int))
@@ -173,6 +184,9 @@ class Fraction <T>
         }
         throw new Exception("How you do it?");
     }
+    /// <summary>
+    /// fraction decompositions method.
+    /// </summary>  
     public void Decomposition()
     {
         IntegerPart = (dynamic)numerator / denominator;
@@ -191,6 +205,12 @@ class Fraction <T>
                 numerator %= (dynamic)denominator;
         }
     }
+    /// <summary>
+    /// Addition fractions.
+    /// </summary>
+    /// <param name="val1">First fraction</param>
+    /// <param name="val2">Second fraction</param>
+    /// <returns>New fraction - result addition</returns>      
     public static Fraction<T> operator +(Fraction<T> val1, Fraction<T> val2)
     { 
         T newDenom = (dynamic)val1.Denominator * (dynamic)val2.Denominator;
@@ -200,6 +220,12 @@ class Fraction <T>
         Fraction<T> result = new Fraction<T>(sum, newDenom);
         return result;            
     } 
+    /// <summary>
+    /// Subtract fractions.
+    /// <param name="val1">Minuend fraction</param>
+    /// <param name="val2">Subtrahend fraction</param>
+    /// </summary>
+    /// <returns>New fraction - result subtracting</returns> 
     public static Fraction<T> operator -(Fraction<T> val1, Fraction<T> val2)
     {
         T newDenom = (dynamic)val1.Denominator * (dynamic)val2.Denominator;
@@ -209,6 +235,12 @@ class Fraction <T>
         Fraction<T> result = new Fraction<T>(subt, newDenom);
         return result;            
     }
+    /// <summary>
+    /// Multiply fractions.
+    /// </summary>
+    /// <param name="val1">First fraction</param>
+    /// <param name="val2">Second fraction</param>
+    /// <returns>New fraction - result multiplying</returns> 
     public static Fraction<T> operator *(Fraction<T> val1, Fraction<T> val2)
     {
         T newNum = (dynamic)val1.Numerator * (dynamic)val2.Numerator;
@@ -216,6 +248,13 @@ class Fraction <T>
         Fraction<T> result = new Fraction<T>(newNum, newDenum);
         return result;
     }
+    /// <summary>
+    /// Division fractions.
+    /// </summary>
+    /// <param name="val1">Dividend fraction</param>
+    /// <param name="val2">Divider fraction</param>
+    /// <returns>New fraction - result dividing</returns> 
+    /// <exception cref="DivideByZeroException">If second fraction equals zero</exception>
     public static Fraction<T> operator /(Fraction<T> val1, Fraction<T> val2)
     {
         dynamic Dval2 = val2;
@@ -230,18 +269,35 @@ class Fraction <T>
         Fraction<T> result = new Fraction<T>(newNum, newDenum);
         return result;
     }
-        public static explicit operator int(Fraction<T> fraction)
-        {
-            if(typeof(T) == typeof(int))
-                return (dynamic)fraction.Numerator / fraction.Denominator;
-            throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
-        }
-        public static explicit operator double(Fraction<T> fraction)
-        {
-            if(typeof(T) == typeof(int))
-                return (double)(dynamic)fraction.Numerator / (double)(dynamic)fraction.Denominator;
-            throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
-        }
+    /// <summary>
+    /// Converting a fraction to decimal format. Only int type
+    /// </summary>
+    /// <param name="fraction">The fraction on which the operation will be performed</param>
+    /// <returns>Division result in integer format</returns> 
+    /// <exception cref="InvalidOperationException">If fraction type is polynomial</exception>
+    public static explicit operator int(Fraction<T> fraction)
+    {
+        if(typeof(T) == typeof(int))
+            return (dynamic)fraction.Numerator / fraction.Denominator;
+        throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
+    }
+    /// <summary>
+    /// Converting a fraction to decimal format. Only int type
+    /// </summary>
+    /// <param name="fraction">The fraction on which the operation will be performed</param>
+    /// <returns>Division result in double format</returns> 
+    /// <exception cref="InvalidOperationException">If fraction type is polynomial</exception>
+    public static explicit operator double(Fraction<T> fraction)
+    {
+        if(typeof(T) == typeof(int))
+            return (double)(dynamic)fraction.Numerator / (double)(dynamic)fraction.Denominator;
+        throw new InvalidOperationException("Cannot convert polynomial fraction to numeric type");
+    }
+    /// <summary>
+    /// Converting a value in fraction type.
+    /// </summary>
+    /// <param name="value">The value on which the operation will be performed</param>
+    /// <returns>fraction / 1</returns> 
     public static implicit operator Fraction<T>(T value)
     {
         return new Fraction<T>(value);
