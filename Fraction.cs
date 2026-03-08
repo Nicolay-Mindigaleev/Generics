@@ -23,7 +23,7 @@ class Fraction <T>
     }
     private void SignCheck()
     {
-        if (typeof(T) == typeof(Polynomial)) return;
+        if (typeof(T) == typeof(Polynomial<double>)) return;
         dynamic numer = numerator, denom = denominator;
         if (denom < 0)
         {
@@ -52,12 +52,12 @@ class Fraction <T>
             numerator /= (dynamic)buffer;
             denominator /= (dynamic)buffer;            
         }
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
         {
             dynamic Dnumerator = numerator;
             dynamic Ddenominator = denominator;
-            Polynomial PrevDiv;
-            Polynomial remainder;
+            Polynomial<double> PrevDiv;
+            Polynomial<double> remainder;
             if (Dnumerator.Power > Ddenominator.Power)
             {
                 PrevDiv = Dnumerator;
@@ -68,7 +68,7 @@ class Fraction <T>
                 PrevDiv = Ddenominator;
                 remainder = Dnumerator;
             }
-            Polynomial buffer = new Polynomial([1]);
+            Polynomial<double> buffer = new Polynomial<double>([1]);
             while (remainder.Power != 1 || remainder[0] != 0)
             {
                 buffer = remainder;
@@ -88,12 +88,12 @@ class Fraction <T>
             IntegerPart = (T)(Object)0;
         }
 
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
         {
             dynamic polyn = DenominatorValue;
             if (polyn.Power == 0 && polyn[0] == 0)
                 throw new DivideByZeroException("Denominator can't be equals zero");
-            IntegerPart = (T)(Object)new Polynomial();
+            IntegerPart = (T)(Object)new Polynomial<double>();
         }
         numerator = NumeratorValue;
         denominator = DenominatorValue;
@@ -110,11 +110,11 @@ class Fraction <T>
             IntegerPart = (T)(Object)0;
         }
 
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
         {
-            numerator = (T)(Object)new Polynomial();
-            denominator = (T)(Object)new Polynomial([1]);
-            IntegerPart = (T)(Object)new Polynomial();
+            numerator = (T)(Object)new Polynomial<double>();
+            denominator = (T)(Object)new Polynomial<double>([1]);
+            IntegerPart = (T)(Object)new Polynomial<double>();
         }
    
     }
@@ -127,12 +127,12 @@ class Fraction <T>
             IntegerPart = (T)(Object)0;
         }
 
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
         {
             dynamic PolyValue = Value;
-            numerator = (T)(Object)new Polynomial(PolyValue);
-            denominator = (T)(Object)new Polynomial([1]);
-            IntegerPart = (T)(Object)new Polynomial();
+            numerator = (T)(Object)new Polynomial<double>(PolyValue);
+            denominator = (T)(Object)new Polynomial<double>([1]);
+            IntegerPart = (T)(Object)new Polynomial<double>();
         }        
     }
     public Fraction(Fraction<T> otherFraction) : this(otherFraction.Numerator, otherFraction.Denominator)
@@ -149,7 +149,7 @@ class Fraction <T>
                 return ($"{IntegerPart} + {numerator}/{denominator}");
             return ($"{IntegerPart} - {Math.Abs(Dnumerator)}/{denominator}");
         }
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
         {
             dynamic IntPart = IntegerPart;
             dynamic Dnumerator = numerator;
@@ -172,7 +172,7 @@ class Fraction <T>
                 numerator = (Math.Abs(Dnumerator) % denominator) * -1;
             }            
         }
-        if(typeof(T) == typeof(Polynomial))
+        if(typeof(T) == typeof(Polynomial<double>))
         {
                 numerator %= (dynamic)denominator;
         }
@@ -208,7 +208,7 @@ class Fraction <T>
         if (typeof(T) == typeof(int))
             if (Dval2.Numerator == 0)
                 throw new DivideByZeroException("Divide by zero error");
-        if (typeof(T) == typeof(Polynomial))
+        if (typeof(T) == typeof(Polynomial<double>))
             if (Dval2.Numerator.Power == 1 && Dval2.Numerator[0] == 0)
                 throw new DivideByZeroException("Divide by zero error");
         T newNum = (dynamic)val1.Numerator * (dynamic)val2.Denominator;
